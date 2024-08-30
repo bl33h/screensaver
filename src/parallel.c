@@ -55,54 +55,43 @@ void init_circles(Circle *circles, int n) {
     }
 }
 
+// Function to render a frame with all the circles
 void render_frame(SDL_Renderer *renderer, Circle *circles, int n) {
-    #pragma omp parallel sections
-    {
-        #pragma omp section
-        {
-            // Actualizar posiciones y manejar colisiones con los bordes
-            for (int i = 0; i < n; i++) {
-                circles[i].x += circles[i].dx;
-                circles[i].y += circles[i].dy;
+    // Configurar el color de fondo y limpiar la pantalla solo una vez por cuadro
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
 
-                if (circles[i].x <= circles[i].radius || circles[i].x >= WIDTH - circles[i].radius) {
-                    circles[i].dx = -circles[i].dx;
-                }
-                if (circles[i].y <= circles[i].radius || circles[i].y >= HEIGHT - circles[i].radius) {
-                    circles[i].dy = -circles[i].dy;
-                }
-            }
-        }
-
-        #pragma omp section
-        {
-            // Limpiar la pantalla y dibujar todos los círculos en una sección crítica
-            #pragma omp critical
-            {
-                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-                SDL_RenderClear(renderer);
-
-                for (int i = 0; i < n; i++) {
-                    SDL_SetRenderDrawColor(renderer, circles[i].color.r, circles[i].color.g, circles[i].color.b, circles[i].color.a);
-                    int x, y;
-                    for (y = -circles[i].radius; y <= circles[i].radius; y++) {
-                        for (x = -circles[i].radius; x <= circles[i].radius; x++) {
-                            if (x * x + y * y <= circles[i].radius * circles[i].radius) {
-                                SDL_RenderDrawPoint(renderer, circles[i].x + x, circles[i].y + y);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// Draw multiple circles
-void draw_circles(SDL_Renderer *renderer, Circle *circles, int n) {
+    // Actualizar posiciones y manejar colisiones en paralelo
+    #pragma omp parallel for schedule(dynamic)
     for (int i = 0; i < n; i++) {
-        draw_circle(renderer, &circles[i]);
+        circles[i].x += circles[i].dx;
+        circles[i].y += circles[i].dy;
+
+        if (circles[i].x <= circles[i].radius || circles[i].x >= WIDTH - circles[i].radius) {
+            circles[i].dx = -circles[i].dx;
+        }
+        if (circles[i].y <= circles[i].radius || circles[i].y >= HEIGHT - circles[i].radius) {
+            circles[i].dy = -circles[i].dy;
+        }
     }
+
+    // Dibujar todos los círculos en una sección crítica
+    #pragma omp parallel for schedule(dynamic)
+    for (int i = 0; i < n; i++) {
+        SDL_SetRenderDrawColor(renderer, circles[i].color.r, circles[i].color.g, circles[i].color.b, circles[i].color.a);
+        int x, y;
+        for (y = -circles[i].radius; y <= circles[i].radius; y++) {
+            for (x = -circles[i].radius; x <= circles[i].radius; x++) {
+                if (x * x + y * y <= circles[i].radius * circles[i].radius) {
+                    #pragma omp critical
+                    SDL_RenderDrawPoint(renderer, circles[i].x + x, circles[i].y + y);
+                }
+            }
+        }
+    }
+
+    // Presentar el renderizado
+    SDL_RenderPresent(renderer);
 }
 
 // Function to calculate and display FPS (Frames Per Second)
@@ -182,14 +171,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        update_positions(circles, n);
-
-        // Clear the screen with black color
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        // Draw all circles
-        draw_circles(renderer, circles, n);
+        render_frame(renderer, circles, n);
 
         calculate_fps(start_time, &frame_count, &fps);
         update_window_title(window, fps);
