@@ -55,14 +55,13 @@ void init_circles(Circle *circles, int n) {
     }
 }
 
-// Function to render a frame with all the circles
 void render_frame(SDL_Renderer *renderer, Circle *circles, int n) {
     // Configurar el color de fondo y limpiar la pantalla solo una vez por cuadro
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     // Actualizar posiciones y manejar colisiones en paralelo
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for
     for (int i = 0; i < n; i++) {
         circles[i].x += circles[i].dx;
         circles[i].y += circles[i].dy;
@@ -75,24 +74,28 @@ void render_frame(SDL_Renderer *renderer, Circle *circles, int n) {
         }
     }
 
-    // Dibujar todos los círculos en una sección crítica
-    #pragma omp parallel for schedule(dynamic)
+    // Dibujar todos los círculos, evitando la sección crítica para cada punto
+    #pragma omp parallel for
     for (int i = 0; i < n; i++) {
-        SDL_SetRenderDrawColor(renderer, circles[i].color.r, circles[i].color.g, circles[i].color.b, circles[i].color.a);
-        int x, y;
-        for (y = -circles[i].radius; y <= circles[i].radius; y++) {
-            for (x = -circles[i].radius; x <= circles[i].radius; x++) {
-                if (x * x + y * y <= circles[i].radius * circles[i].radius) {
-                    #pragma omp critical
-                    SDL_RenderDrawPoint(renderer, circles[i].x + x, circles[i].y + y);
+        #pragma omp critical
+        {
+            SDL_SetRenderDrawColor(renderer, circles[i].color.r, circles[i].color.g, circles[i].color.b, circles[i].color.a);
+            int x, y;
+            for (y = -circles[i].radius; y <= circles[i].radius; y++) {
+                for (x = -circles[i].radius; x <= circles[i].radius; x++) {
+                    if (x * x + y * y <= circles[i].radius * circles[i].radius) {
+                        SDL_RenderDrawPoint(renderer, circles[i].x + x, circles[i].y + y);
+                    }
                 }
             }
         }
     }
 
-    // Presentar el renderizado
+    // Presentar el renderizado solo por un hilo
+    #pragma omp single
     SDL_RenderPresent(renderer);
 }
+
 
 // Function to calculate and display FPS (Frames Per Second)
 void calculate_fps(Uint32 start_time, int *frame_count, float *fps) {
