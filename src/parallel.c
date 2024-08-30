@@ -55,37 +55,44 @@ void init_circles(Circle *circles, int n) {
     }
 }
 
-// Function to update the positions of circles and handle boundary collisions
-void update_positions(Circle *circles, int n) {
-    // Parallelize the update of the positions of the circles
-    #pragma omp parallel for
-    for (int i = 0; i < n; i++) {
-        // Update X and Y positions
-        circles[i].x += circles[i].dx;
-        circles[i].y += circles[i].dy;
+void render_frame(SDL_Renderer *renderer, Circle *circles, int n) {
+    #pragma omp parallel sections
+    {
+        #pragma omp section
+        {
+            // Actualizar posiciones y manejar colisiones con los bordes
+            for (int i = 0; i < n; i++) {
+                circles[i].x += circles[i].dx;
+                circles[i].y += circles[i].dy;
 
-        // Bounce off the left or right edge
-        if (circles[i].x <= circles[i].radius || circles[i].x >= WIDTH - circles[i].radius) {
-            circles[i].dx = -circles[i].dx;
+                if (circles[i].x <= circles[i].radius || circles[i].x >= WIDTH - circles[i].radius) {
+                    circles[i].dx = -circles[i].dx;
+                }
+                if (circles[i].y <= circles[i].radius || circles[i].y >= HEIGHT - circles[i].radius) {
+                    circles[i].dy = -circles[i].dy;
+                }
+            }
         }
-        // Bounce off the top or bottom edge
-        if (circles[i].y <= circles[i].radius || circles[i].y >= HEIGHT - circles[i].radius) {
-            circles[i].dy = -circles[i].dy;
-        }
-    }
-}
 
-// Function to draw a circle using SDL
-void draw_circle(SDL_Renderer *renderer, Circle *circle) {
-    SDL_SetRenderDrawColor(renderer, circle->color.r, circle->color.g, circle->color.b, circle->color.a);
-    
-    int x, y;
-    // Iterate through the pixels within the bounding box of the circle
-    for (y = -circle->radius; y <= circle->radius; y++) {
-        for (x = -circle->radius; x <= circle->radius; x++) {
-            // Check if the pixel is inside the circle using: x^2 + y^2 <= radius^2
-            if (x * x + y * y <= circle->radius * circle->radius) {
-                SDL_RenderDrawPoint(renderer, circle->x + x, circle->y + y);
+        #pragma omp section
+        {
+            // Limpiar la pantalla y dibujar todos los círculos en una sección crítica
+            #pragma omp critical
+            {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderClear(renderer);
+
+                for (int i = 0; i < n; i++) {
+                    SDL_SetRenderDrawColor(renderer, circles[i].color.r, circles[i].color.g, circles[i].color.b, circles[i].color.a);
+                    int x, y;
+                    for (y = -circles[i].radius; y <= circles[i].radius; y++) {
+                        for (x = -circles[i].radius; x <= circles[i].radius; x++) {
+                            if (x * x + y * y <= circles[i].radius * circles[i].radius) {
+                                SDL_RenderDrawPoint(renderer, circles[i].x + x, circles[i].y + y);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
