@@ -87,14 +87,14 @@ void draw_circle(SDL_Renderer *renderer, Circle *circle) {
 }
 
 // Function to calculate and display FPS (Frames Per Second)
-void calculate_fps(Uint32 start_time, int *frame_count, float *fps) {
+void calculate_fps(Uint32 *start_time, int *frame_count, float *fps) {
     (*frame_count)++;
     Uint32 current_time = SDL_GetTicks();
-    // If one second has passed, calculate FPS
-    if (current_time > start_time + 1000) {
-        *fps = *frame_count * 1000.0f / (current_time - start_time);
+    // Si ha pasado un segundo, calcular FPS
+    if (current_time > *start_time + 1000) {
+        *fps = *frame_count * 1000.0f / (current_time - *start_time);
         *frame_count = 0;
-        start_time = current_time;
+        *start_time = current_time;
     }
 }
 
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
             draw_circle(renderer, &circles[i]);
         }
 
-        calculate_fps(start_time, &frame_count, &fps);
+        calculate_fps(&start_time, &frame_count, &fps);
         update_window_title(window, fps);
 
         SDL_RenderPresent(renderer);

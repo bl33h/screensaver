@@ -1,6 +1,6 @@
 /*
-    parallel.c
-    Parallel implementation of the screen saver
+    sequential.c
+    Sequential implementation of the screen saver
 
     Authors:
     * Ricardo Mendez
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include <omp.h>
 
 #define WIDTH 640       // Window width
 #define HEIGHT 480      // Window height
@@ -33,8 +32,6 @@ float rand_range(float min, float max) {
 
 // Function to initialize circles with random positions, velocities, and colors
 void init_circles(Circle *circles, int n) {
-    // Parallelize the initialization of the circles
-    #pragma omp parallel for
     for (int i = 0; i < n; i++) {
         // Random radius between 5 and 20
         circles[i].radius = rand_range(5.0, 20.0);
@@ -55,47 +52,46 @@ void init_circles(Circle *circles, int n) {
     }
 }
 
-void render_frame(SDL_Renderer *renderer, Circle *circles, int n) {
-    // Configurar el color de fondo y limpiar la pantalla solo una vez por cuadro
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    // Actualizar posiciones y manejar colisiones en paralelo
-    #pragma omp parallel for
+// Function to update the positions of circles and handle boundary collisions
+void update_positions(Circle *circles, int n) {
+    #pragma omp parallel for schedule(dynamic)
     for (int i = 0; i < n; i++) {
+        // Update X and Y positions
         circles[i].x += circles[i].dx;
         circles[i].y += circles[i].dy;
 
+        // Bounce off the left or right edge
         if (circles[i].x <= circles[i].radius || circles[i].x >= WIDTH - circles[i].radius) {
             circles[i].dx = -circles[i].dx;
         }
+        // Bounce off the top or bottom edge
         if (circles[i].y <= circles[i].radius || circles[i].y >= HEIGHT - circles[i].radius) {
             circles[i].dy = -circles[i].dy;
         }
     }
+}
 
-    // Dibujar todos los círculos, evitando la sección crítica para cada punto
-    #pragma omp parallel for
-    for (int i = 0; i < n; i++) {
-        #pragma omp critical
-        {
-            SDL_SetRenderDrawColor(renderer, circles[i].color.r, circles[i].color.g, circles[i].color.b, circles[i].color.a);
-            int x, y;
-            for (y = -circles[i].radius; y <= circles[i].radius; y++) {
-                for (x = -circles[i].radius; x <= circles[i].radius; x++) {
-                    if (x * x + y * y <= circles[i].radius * circles[i].radius) {
-                        SDL_RenderDrawPoint(renderer, circles[i].x + x, circles[i].y + y);
-                    }
+// Function to draw a circle using SDL
+void draw_circle(SDL_Renderer *renderer, Circle *circle) {
+    SDL_SetRenderDrawColor(renderer, circle->color.r, circle->color.g, circle->color.b, circle->color.a);
+    
+    omp_set_nested(1);
+
+    int x, y;
+    // Iterate through the pixels within the bounding box of the circle
+    #pragma omp parallel for private(x, y) collapse(2)
+    for (y = -circle->radius; y <= circle->radius; y++) {
+        for (x = -circle->radius; x <= circle->radius; x++) {
+            // Check if the pixel is inside the circle using: x^2 + y^2 <= radius^2
+            if (x * x + y * y <= circle->radius * circle->radius) {
+                #pragma omp critical
+                {
+                    SDL_RenderDrawPoint(renderer, circle->x + x, circle->y + y);
                 }
             }
         }
     }
-
-    // Presentar el renderizado solo por un hilo
-    #pragma omp single
-    SDL_RenderPresent(renderer);
 }
-
 
 // Function to calculate and display FPS (Frames Per Second)
 void calculate_fps(Uint32 *start_time, int *frame_count, float *fps) {
@@ -174,7 +170,17 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        render_frame(renderer, circles, n);
+        
+        update_positions(circles, n);
+
+        // Clear the screen with black color
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Draw all circles
+        for (int i = 0; i < n; i++) {
+            draw_circle(renderer, &circles[i]);
+        }
 
         calculate_fps(&start_time, &frame_count, &fps);
         update_window_title(window, fps);
