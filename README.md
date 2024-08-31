@@ -9,6 +9,7 @@ This project implements a parallelized screensaver using OpenMP and SDL in C. Th
 <p align="center" >
   <a href="#features">Features</a> •
   <a href="#dependencies">Dependencies</a> •
+  <a href="#inspiration">Inspiration</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#documentation">Documentation</a> 
 </p>
@@ -22,6 +23,15 @@ This project implements a parallelized screensaver using OpenMP and SDL in C. Th
 ## Dependencies
 - **OpenMP:** Used for parallelizing the computation.
 - **SDL (Simple DirectMedia Layer):** A library used for rendering graphics.
+
+## Inspiration
+This screensaver was inspired by the classic bouncing ball screensavers. The design and concept were based on [this image](<link_to_the_inspiration_image>), which provided the visual and functional framework for our implementation.
+
+<p align="center">
+  <br>
+  <img src="https://i.ytimg.com/vi/VYC5Q_9-rB4/maxresdefault.jpg" alt="Inspiration pic" width="500">
+  <br>
+</p>
 
 ## How To Use
 ### Compiling the Project
