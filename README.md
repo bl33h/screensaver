@@ -9,9 +9,10 @@ This project implements a parallelized screensaver using OpenMP and SDL in C. Th
 <p align="center" >
   <a href="#features">Features</a> •
   <a href="#dependencies">Dependencies</a> •
-  <a href="#inspiration">Inspiration</a> •
   <a href="#how-to-use">How To Use</a> •
-  <a href="#documentation">Documentation</a> 
+  <a href="#documentation">Documentation</a> •
+  <a href="#inspiration">Inspiration</a> •
+  <a href="#contributors">Contributors</a>
 </p>
 
 ## Features
@@ -23,15 +24,6 @@ This project implements a parallelized screensaver using OpenMP and SDL in C. Th
 ## Dependencies
 - **OpenMP:** Used for parallelizing the computation.
 - **SDL (Simple DirectMedia Layer):** A library used for rendering graphics.
-
-## Inspiration
-This screensaver was inspired by the classic bouncing ball screensavers. The design and concept were based on [this image](https://i.ytimg.com/vi/VYC5Q_9-rB4/maxresdefault.jpg), which provided the visual and functional framework for our implementation.
-
-<p align="center">
-  <br>
-  <img src="https://i.ytimg.com/vi/VYC5Q_9-rB4/maxresdefault.jpg" alt="Inspiration pic" width="500">
-  <br>
-</p>
 
 ## How To Use
 ### Compiling the Project
@@ -62,6 +54,15 @@ The program first captures user input (number of circles) and initializes the SD
 
 ### Defensive Programming
 The program includes checks for user input and handles potential errors, such as invalid parameters or failed SDL initialization.
+
+## Inspiration
+This screensaver was inspired by the classic bouncing ball screensavers. The design and concept were based on [this image](https://i.ytimg.com/vi/VYC5Q_9-rB4/maxresdefault.jpg), which provided the visual and functional framework for our implementation.
+
+<p align="center">
+  <br>
+  <img src="https://i.ytimg.com/vi/VYC5Q_9-rB4/maxresdefault.jpg" alt="Inspiration pic" width="500">
+  <br>
+</p>
 
 ## Contributors
 [@MelissaPerez09](https://github.com/MelissaPerez09) | [@bl33h](https://github.com/bl33h) | [@Mendezg1](https://github.com/Mendezg1)
