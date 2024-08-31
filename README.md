@@ -8,6 +8,7 @@ This project implements a parallelized screensaver using OpenMP and SDL in C. Th
 </p>
 <p align="center" >
   <a href="#features">Features</a> •
+  <a href="#files">Files</a> •
   <a href="#dependencies">Dependencies</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#documentation">Documentation</a> •
@@ -20,6 +21,21 @@ This project implements a parallelized screensaver using OpenMP and SDL in C. Th
 - **Configurable Elements:** The user can define the number of circles to render (`N`), and the program will generate them with random colors and sizes.
 - **Physics Simulation:** Each circle moves and rebounds within the canvas, simulating basic physical interactions.
 - **Frame Rate Display:** The program displays the current frames per second (FPS) to monitor performance.
+
+## Files
+### 1. sequential.c
+This file contains the implementation of the screensaver in its sequential form. The key characteristics of this version are:
+- **Single-threaded execution:** All circles are processed in a loop within a single thread.
+- **Basic structure:** This version is straightforward, processing each circle's position update and rendering sequentially.
+- **Use of SDL:** Utilizes SDL for handling graphics rendering and window management.
+
+### 2. parallel.c
+This file contains the parallelized implementation of the screensaver using OpenMP. Key characteristics include:
+- **Multi-threaded execution:** The circle updates are distributed across multiple threads using OpenMP, allowing simultaneous processing.
+- **OpenMP directives:** The program leverages OpenMP's `#pragma omp` directives to parallelize loops, enhancing performance on multi-core processors.
+- **Optimized performance:** Designed to take full advantage of modern CPUs by distributing the workload across available cores, resulting in potentially higher FPS compared to the sequential version.
+
+Both files utilize SDL for rendering and are designed to demonstrate the benefits of parallel computing in a visually engaging way.
 
 ## Dependencies
 - **OpenMP:** Used for parallelizing the computation.
