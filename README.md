@@ -3,7 +3,7 @@ This project implements a parallelized screensaver using OpenMP and SDL in C. Th
 
 <p align="center">
   <br>
-  <img src="./others/demostration.gif" alt="wb" width="400">
+  <img src=" " alt="wb" width="400">
   <br>
 </p>
 <p align="center" >
