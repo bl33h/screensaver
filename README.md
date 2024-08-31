@@ -35,10 +35,10 @@ gcc -o parallel parallel.c -fopenmp -lSDL2
 ### Running the Project
 ```bash
 # Sequential version
-./sequential <circle's number>
+./sequential <number of circles>
 
 # Parallel version
-./parallel <circle's number>
+./parallel <number of circles>
 ```
 
 ## Documentation
