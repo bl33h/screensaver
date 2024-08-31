@@ -1,25 +1,33 @@
 # Screensaver Project
-
-## Overview
 This project implements a parallelized screensaver using OpenMP and SDL in C. The screensaver generates a number of moving objects circles that bounce within a defined canvas. The main focus of the project is to demonstrate the use of parallel computing to enhance the performance of a traditionally sequential program.
 
-## Features
+<p align="center">
+  <br>
+  <img src="./others/demostration.gif" alt="wb" width="400">
+  <br>
+</p>
+<p align="center" >
+  <a href="#features">Features</a> •
+  <a href="#dependencies">Dependencies</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="#documentation">Documentation</a> 
+</p>
 
+## Features
 - **Parallelization with OpenMP:** The program is designed to leverage multiple CPU cores for improved performance.
 - **Configurable Elements:** The user can define the number of circles to render (`N`), and the program will generate them with random colors and sizes.
 - **Physics Simulation:** Each circle moves and rebounds within the canvas, simulating basic physical interactions.
 - **Frame Rate Display:** The program displays the current frames per second (FPS) to monitor performance.
 
 ## Dependencies
-
 - **OpenMP:** Used for parallelizing the computation.
 - **SDL (Simple DirectMedia Layer):** A library used for rendering graphics.
 
-## Usage
+## How To Use
 ### Compiling the Project
 ```bash
 # Sequential version
-gcc -o sequential sequential.c -lSDL2
+gcc -o sequential sequential.c -lSDL2 -lm
 
 # Parallel version
 gcc -o parallel parallel.c -fopenmp -lSDL2
@@ -27,10 +35,10 @@ gcc -o parallel parallel.c -fopenmp -lSDL2
 ### Running the Project
 ```bash
 # Sequential version
-./sequential <number_of_circles>
+./sequential <circle's number>
 
 # Parallel version
-./parallel <number_of_circles>
+./parallel <circle's number>
 ```
 
 ## Documentation
